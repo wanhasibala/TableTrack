@@ -1,37 +1,40 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import { Button } from "./components/ui/button";
+import { Header } from "@/components/order/Header";
+import { Search } from "./components/order/Search";
+import { Category } from "./components/order/Category";
+import { Items } from "./components/order/Item";
+import { Footer } from "./components/Footer";
+import { useState } from "react";
 
+interface Item {
+  id: number;
+  name: string;
+  price: number;
+  count: number;
+  description: string;
+}
 function App() {
-  const [count, setCount] = useState(0);
-
+  const [items, setItems] = useState<Item[]>([
+    { id: 1, name: "Latte", price: 5.0, count: 0, description: "" },
+    { id: 2, name: "Cappuccino", price: 4.5, count: 0, description: "" },
+    { id: 3, name: "Espresso", price: 3.0, count: 0, description: "" },
+  ]);
+  const totalItems = items.reduce((count, item) => count + item.count, 0);
+  const totalPrice = items.reduce(
+    (total, item) => total + item.price * item.count,
+    0,
+  );
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="w-[90vw] max-w-sm border-black flex  flex-col gap-5 ">
+        <Header />
+        <Search />
+        <Category />
+        <Items items={items} setItems={setItems} />
+        {totalItems > 0 && (
+          <Footer totalItems={totalItems} totalPrice={totalPrice} />
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <Button
-          onClick={() => setCount((count) => count + 1)}
-          className="bg-slate-50 text-black"
-        >
-          count is {count}
-        </Button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   );
 }
