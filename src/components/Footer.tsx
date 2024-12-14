@@ -1,18 +1,42 @@
+import { Navigate, useNavigate, useNavigation } from "react-router";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 interface FooterProps {
   totalItems: number;
   totalPrice: number;
+  variant?: "full" | "order" | "cart";
+  link: string;
+  text: string;
 }
-export const Footer: React.FC<FooterProps> = ({ totalItems, totalPrice }) => {
+export const Footer: React.FC<FooterProps> = ({
+  totalItems,
+  totalPrice,
+  variant,
+  link,
+  text,
+}) => {
+  const navigate = useNavigate();
   return (
-    <footer className="h-[100px] fixed bottom-0 left-0 w-full flex justify-between items-center shadow-[0_-4px_6px_0px_rgba(0,0,0,0.09)]  border  bg-white py-5 px-8">
-      <div>
-        <p className="subtle-medium">{totalItems} items</p>
-        <h4>${totalPrice}</h4>
-      </div>
-      <Button className="bg-primary rounded-full">
-        <p>Order Now</p>
+    <footer className="h-[80px] fixed bottom-0 left-0 w-full flex justify-between items-center shadow-[0_-4px_6px_0px_rgba(0,0,0,0.09)]  border  bg-white py-5 px-8">
+      {variant !== "full" && (
+        <div className="w-full ">
+          <p className="subtle-medium">{totalItems} items</p>
+          <p className="font-semibold">
+            {new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "idr",
+            }).format(totalPrice)}
+          </p>
+        </div>
+      )}
+      <Button
+        className={cn("bg-primary rounded-full ", {
+          "w-full": variant === "full",
+        })}
+        onClick={() => navigate(link)}
+      >
+        <p>{text}</p>
       </Button>
     </footer>
   );

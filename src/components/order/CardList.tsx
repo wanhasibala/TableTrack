@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "../ui/button";
-import { Minus, Plus } from "lucide-react";
+import { Menu, Minus, Plus } from "lucide-react";
 import { MenuDetailDialog } from "./MenuDetailDialog";
 
 interface Item {
@@ -14,6 +14,7 @@ interface Item {
 interface CardProps {
   item: Item;
   onItemCountChange: (id: number, newCount: number) => void;
+  MenuDetailDialog: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({ item, onItemCountChange }) => {
@@ -22,14 +23,20 @@ export const Card: React.FC<CardProps> = ({ item, onItemCountChange }) => {
 
   return (
     <div className="relative">
-      <div className="w-full flex gap-2 " onClick={() => SetIsOpen(true)}>
+      <div className="w-full flex gap-2" onClick={() => SetIsOpen(true)}>
         <img
           className="w-[60px] h-[60px] object-cover bg-slate-100 rounded-lg"
           src="https://plus.unsplash.com/premium_photo-1674327105280-b86494dfc690?q=80&w=2812&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         />
         <div>
           <p className="large">{name}</p>
-          <p className="text-sm">Price: ${price.toFixed(2)}</p>
+          <p className="text-sm">
+            {" "}
+            {new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "idr",
+            }).format(price)}
+          </p>
         </div>
       </div>
       {count === 0 ? (

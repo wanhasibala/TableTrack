@@ -39,6 +39,7 @@ export const Items: React.FC<ItemsProps> = ({ items, setItems }) => {
             item={item}
             key={item.id}
             onItemCountChange={handleItemCountChange}
+            MenuDetailDialog={true}
           />
         ))}
       </div>
