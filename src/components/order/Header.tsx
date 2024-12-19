@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import { Bell, ShoppingCart } from "lucide-react";
 
-export const Header = () => {
+export const MenuHeader = () => {
   return (
     <header className="flex justify-between items-center">
       <div>

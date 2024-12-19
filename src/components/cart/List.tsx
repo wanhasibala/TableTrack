@@ -1,8 +1,10 @@
-import { Square } from "lucide-react";
+import { Square, SquareCheck } from "lucide-react";
 import { Card } from "../order/CardList";
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/db/supabaseClient";
 import { Footer } from "../Footer";
+import { useParams } from "react-router";
+import { Button } from "../ui/button";
 
 interface Item {
   id: string;
@@ -11,20 +13,24 @@ interface Item {
   count: number;
   description: string;
 }
+
 export const List = () => {
   const [items, setItems] = useState<Item[]>([]);
-  const [count, setCount] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const params = useParams();
 
   useEffect(() => {
     async function fetchOrders() {
-      const { data, error } = await supabase.from("menu_item").select("*");
+      const { data, error } = await supabase
+        .from("order_item")
+        .select("*, order(*), menu_item(*)")
+        .eq("order_id", params.orderId);
       if (error) {
         console.error(error);
       } else {
-        console.log(data);
         const itemsWithCount = (data || []).map((item) => ({
-          ...item,
-          count: 0,
+          ...item.menu_item,
+          count: item.quantity,
         }));
         setItems(itemsWithCount);
       }
@@ -32,33 +38,104 @@ export const List = () => {
     fetchOrders();
   }, []);
 
-  const handleItemCountChange = (id: string, newCount: number) => {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, count: newCount } : item,
-      ),
-    );
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prevSelectedIds) => {
+      const newSet = new Set(prevSelectedIds);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
+
+  const selectAll = () => {
+    if (selectedIds.size === items.length) {
+      setSelectedIds(new Set()); // Deselect all
+    } else {
+      setSelectedIds(new Set(items.map((item) => item.id))); // Select all
+    }
+  };
+
+  const deleteSelected = async () => {
+    const idsToDelete = Array.from(selectedIds);
+    try {
+      const { error } = await supabase
+        .from("order_item")
+        .delete()
+        .in("id", idsToDelete); // Adjust column name if needed
+      if (error) throw error;
+
+      // Update state after deletion
+      setItems((prevItems) =>
+        prevItems.filter((item) => !selectedIds.has(item.id)),
+      );
+      setSelectedIds(new Set());
+    } catch (error) {
+      console.error("Error deleting items:", error);
+    }
+  };
+
   const totalItems = items.reduce((total, item) => total + item.count, 0);
   const totalPrice = items.reduce(
     (total, item) => total + item.price * item.count,
     0,
   );
+
   return (
     <>
-      <div className="flex items-center gap-2 border-b border-b-slate-200 pb-1">
-        <Square size={14} className="text-[#E5E7EB]" />
-        <p className="large text-slate-600"> Selected Menu</p>
+      <div className="flex items-center justify-between border-b border-b-slate-200 pb-1">
+        <div className="flex items-center gap-2">
+          {selectedIds.size === items.length ? (
+            <SquareCheck
+              size={16}
+              className="text-slate-500 cursor-pointer"
+              onClick={selectAll}
+            />
+          ) : (
+            <Square
+              size={16}
+              className="text-slate-200 cursor-pointer"
+              onClick={selectAll}
+            />
+          )}
+          <p className="large text-slate-600">Selected Menu</p>
+        </div>
+        {selectedIds.size > 0 && (
+          <Button
+            variant={"destructive"}
+            className="text-sm h-6 w-fit"
+            onClick={deleteSelected}
+          >
+            Delete
+          </Button>
+        )}
       </div>
       {items.map((item) => (
-        <div className="flex gap-2 w-full  items-center ">
-          <Square className="text-slate-200" />
+        <div
+          className="flex gap-2 w-full items-center cursor-pointer"
+          onClick={() => toggleSelect(item.id)}
+          key={item.id}
+        >
+          {selectedIds.has(item.id) ? (
+            <SquareCheck size={16} className="text-slate-500" />
+          ) : (
+            <Square size={16} className="text-slate-200" />
+          )}
           <div className="w-full">
             <Card
               item={item}
-              key={item.id}
               MenuDetailDialog={false}
-              onItemCountChange={handleItemCountChange}
+              onItemCountChange={(id, newCount) => {
+                setItems((prevItems) =>
+                  prevItems.map((prevItem) =>
+                    prevItem.id === id
+                      ? { ...prevItem, count: newCount }
+                      : prevItem,
+                  ),
+                );
+              }}
             />
           </div>
         </div>
@@ -67,9 +144,9 @@ export const List = () => {
         <Footer
           totalItems={totalItems}
           totalPrice={totalPrice}
-          variant="order"
-          link="/checkout"
-          text="Order"
+          variant="half"
+          onClick={() => {}}
+          text="Order Now"
         />
       )}
     </>

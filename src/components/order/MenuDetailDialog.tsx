@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogClose } from "../ui/dialog";
 import { Button } from "../ui/button";
 
 interface Item {
-  id: number;
+  id: string;
   name: string;
   price: number;
   description: string;

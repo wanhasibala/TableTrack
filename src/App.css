@@ -5,9 +5,11 @@
 #root {
   /*max-width: 340px;*/
   /*width: 90vw;*/
-  margin-right: auto;
-  margin-left: auto;
+  /*margin-right: auto;*/
+  /*margin-left: auto;*/
   margin-top: 20px;
+  width: 100%;
+  padding: 0 20px;
   margin-bottom: 20px;
   /*padding: 1rem;*/
   text-align: left;
@@ -19,6 +21,7 @@
 }
 h3 {
   font-size: 1.5em;
+  font-weight: 500;
 }
 h4 {
   font-size: 20px;

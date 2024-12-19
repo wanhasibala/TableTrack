@@ -25,7 +25,6 @@ export const Category = () => {
     getOrder();
   }, []);
 
-  console.log(order);
   return (
     <div className="text-white">
       {order.map((item) => {
