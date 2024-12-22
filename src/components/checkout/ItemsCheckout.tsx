@@ -49,7 +49,7 @@ export const ItemsCheckout = () => {
         <Button
           variant={"link"}
           className="text-primary underline "
-          onClick={() => navigate(`/menu/${params.orderId}`)}
+          onClick={() => navigate(`/menu/order/${params.orderId}`)}
         >
           See Menu
         </Button>
@@ -62,7 +62,7 @@ export const ItemsCheckout = () => {
       <div className="py-5 border-b border-b-slate-200">
         <Button
           className="text-sm px-4 py-2 h-fit"
-          onClick={() => navigate(`/menu/${params.orderId}`)}
+          onClick={() => navigate(`/menu/order/${params.orderId}`)}
         >
           <Plus />
           Add Items

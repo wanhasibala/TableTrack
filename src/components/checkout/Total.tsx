@@ -1,7 +1,9 @@
-import React from "react";
 import { Footer } from "../Footer";
+import { useNavigate, useParams } from "react-router";
 
 export const Total = ({ price }: { price: number }) => {
+  const navigate = useNavigate();
+  const params = useParams();
   const discount = 15;
   const tax = 10;
   const rupiahFormat = (amount: number) =>
@@ -35,11 +37,15 @@ export const Total = ({ price }: { price: number }) => {
           <p>{taxPrice}</p>
         </div>
         <div className="flex justify-between text-slate-700 font-medium">
-          <p>Promotion</p>
+          <p>Total</p>
           <p>{total}</p>
         </div>
       </div>
-      <Footer variant="full" text={`Next ${total}`} onClick={() => {}} />
+      <Footer
+        variant="full"
+        text={`Next ${total}`}
+        onClick={() => navigate(`/payment/${params.orderId}`)}
+      />
     </>
   );
 };

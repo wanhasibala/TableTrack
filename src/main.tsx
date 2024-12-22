@@ -8,6 +8,7 @@ import Cart from "./page/Cart.tsx";
 import Checkout from "./page/Checkout.tsx";
 import { FormOrder } from "./page/FormOrder.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
+import Payment from "./page/Payment.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -15,13 +16,14 @@ createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="menu/:tableId" element={<Order />} />
-        <Route path="menu/:orderId" element={<Order />} />
+        <Route path="menu/order/:orderId" element={<Order />} />
         <Route path="menu" element={<Order />} />
         {/* <Route path="order/:tableId/details" element={<OrderDetails />} /> */}
         <Route path="/cart/:orderId" element={<Cart />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/form-order/:orderId" element={<FormOrder />} />
         <Route path="/checkout/:orderId" element={<Checkout />} />
+        <Route path="/payment/:orderId" element={<Payment />} />
         {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </BrowserRouter>

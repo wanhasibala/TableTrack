@@ -5,6 +5,7 @@ import { Footer } from "../Footer";
 import { supabase } from "@/db/supabaseClient";
 import { useNavigate, useParams } from "react-router";
 import { postOrder } from "@/db/queries/postOrder";
+import { toast } from "sonner";
 
 interface Item {
   id: string;
@@ -80,37 +81,50 @@ export const Items = () => {
     (total, item) => total + item.price * item.count,
     0,
   );
-
   const handleOrderClick = async () => {
-    try {
-      if (!isOrderPage) {
-        // Handle creating a new order
-        const selectedItems = items.filter((item) => item.count > 0);
+    const selectedItems = items.filter((item) => item.count > 0);
 
-        const newOrderData = {
-          id_table: params.tableId,
-          order_status: "pending",
-        };
+    if (isOrderPage) {
+      // Update order in the database
+      try {
+        const updates = selectedItems.map(async (item) => {
+          const { error } = await supabase
+            .from("order_item")
+            .update({
+              quantity: item.count,
+            })
+            .eq("order_id", params.orderId)
+            .eq("item_id", item.id);
 
-        const order = await postOrder(newOrderData, "order");
+          if (error) throw error;
+        });
 
-        const selectedItemData = selectedItems.map((item) => ({
-          item_id: item.id,
-          quantity: item.count,
-          //@ts-ignore
-          order_id: order[0].id,
-        }));
-
-        await postOrder(selectedItemData, "order_item");
-
-        //@ts-ignore
-        navigate(`/cart/${order[0].id}`);
-      } else {
-        // Handle updating an existing order (optional)
-        alert("Update order logic not implemented yet!");
+        await Promise.all(updates);
+        toast("Order updated successfully!", { position: "top-center" });
+        navigate(`/checkout/${params.orderId}`);
+      } catch (err) {
+        console.error("Error updating order:", err);
+        toast("Failed to update order.", { position: "top-center" });
       }
-    } catch (err) {
-      console.error("Order submission failed:", err);
+    } else {
+      // Create a new order in the database
+      const orderData = {
+        id_table: params.tableId,
+        order_status: "Pending",
+      };
+
+      const order = await postOrder(orderData, "order");
+      const selectedItemIds = selectedItems.map((item) => ({
+        item_id: item.id,
+        quantity: item.count,
+        //@ts-ignore
+        order_id: order[0].id,
+      }));
+      await postOrder(selectedItemIds, "order_item");
+
+      //@ts-ignore
+
+      navigate(`/cart/${order[0].id}`);
     }
   };
 
