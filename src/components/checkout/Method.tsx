@@ -1,5 +1,6 @@
 import { ChevronRight, Ticket, Wallet } from "lucide-react";
 import React from "react";
+import { Footer } from "../Footer";
 
 export const Method = () => {
   return (

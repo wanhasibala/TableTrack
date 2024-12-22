@@ -3,7 +3,7 @@ import { Card } from "../order/CardList";
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/db/supabaseClient";
 import { Footer } from "../Footer";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Button } from "../ui/button";
 import { useDispatch } from "react-redux";
 import { setRawItems } from "../state/itemSlice";
@@ -21,6 +21,7 @@ export const List = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const params = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchOrders() {
@@ -154,7 +155,9 @@ export const List = () => {
           totalItems={totalItems}
           totalPrice={totalPrice}
           variant="half"
-          onClick={() => {}}
+          onClick={() => {
+            navigate(`/checkout/${params.orderId}`);
+          }}
           text="Order Now"
         />
       )}

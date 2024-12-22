@@ -23,6 +23,7 @@ import { supabase } from "@/db/supabaseClient";
 import { useEffect, useState } from "react";
 import { Textarea } from "../ui/textarea";
 import { useParams, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -112,9 +113,9 @@ export const FormInput = () => {
         .eq("id", params.orderId);
       if (error) {
         console.error("Error updating order:", error);
-        alert("Failed to update order.");
+        toast("Failed to update order.", { position: "top-center" });
       } else {
-        alert("Order updated successfully!");
+        toast("Order updated successfully!", { position: "top-center" });
         navigate(`/cart/${params.orderId}`);
       }
     } catch (err) {

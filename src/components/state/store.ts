@@ -12,7 +12,6 @@ const store = configureStore({
   reducer: {
     items: itemsReducer,
   },
-  preloadedState, // Use the loaded state during store initialization
 });
 
 store.subscribe(() => {
