@@ -5,6 +5,8 @@ import { supabase } from "@/db/supabaseClient";
 import { Footer } from "../Footer";
 import { useParams } from "react-router";
 import { Button } from "../ui/button";
+import { useDispatch } from "react-redux";
+import { setRawItems } from "../state/itemSlice";
 
 interface Item {
   id: string;
@@ -18,21 +20,26 @@ export const List = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const params = useParams();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     async function fetchOrders() {
       const { data, error } = await supabase
         .from("order_item")
-        .select("*, order(*), menu_item(*)")
+        .select("*, order(*,table(*)), menu_item(*)")
         .eq("order_id", params.orderId);
       if (error) {
         console.error(error);
       } else {
+        console.log(data);
         const itemsWithCount = (data || []).map((item) => ({
           ...item.menu_item,
           count: item.quantity,
         }));
         setItems(itemsWithCount);
+
+        window.localStorage.setItem("reduxState", JSON.stringify(data));
+        dispatch(setRawItems(data));
       }
     }
     fetchOrders();
@@ -64,7 +71,9 @@ export const List = () => {
       const { error } = await supabase
         .from("order_item")
         .delete()
-        .in("id", idsToDelete); // Adjust column name if needed
+        .in("item_id", idsToDelete)
+        .eq("order_id", params.orderId); // Adjust column name if needed
+
       if (error) throw error;
 
       // Update state after deletion
@@ -105,7 +114,7 @@ export const List = () => {
         {selectedIds.size > 0 && (
           <Button
             variant={"destructive"}
-            className="text-sm h-6 w-fit"
+            className="text-sm h-6 rounded-full w-fit"
             onClick={deleteSelected}
           >
             Delete

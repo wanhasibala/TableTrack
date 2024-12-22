@@ -16,9 +16,6 @@ export const Category = () => {
   const [order, setOrder] = useState<Order[]>([]);
   useEffect(() => {
     const getOrder = async () => {
-      // const data = await getOrderClient();
-      // const data = await prism;
-
       //@ts-ignore
       setOrder(data);
     };

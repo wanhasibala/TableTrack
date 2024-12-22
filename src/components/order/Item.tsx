@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Card } from "./CardList";
 import { Footer } from "../Footer";
 import { supabase } from "@/db/supabaseClient";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { postOrder } from "@/db/queries/postOrder";
 
 interface Item {
@@ -19,6 +19,7 @@ export const Items = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useState<string | null>(null);
+  const params = useParams();
   const handleItemCountChange = (id: string, newCount: number) => {
     setItems((prevItems) =>
       prevItems.map((item) =>
@@ -43,8 +44,8 @@ export const Items = () => {
   }, []);
 
   const data = {
-    id_table: "5efe51a7-945f-4d56-8725-24e5055c56ce",
-    order_status: "Not Paid",
+    id_table: params.tableId,
+    order_status: "",
   };
 
   const totalItems = items.reduce((total, item) => total + item.count, 0);

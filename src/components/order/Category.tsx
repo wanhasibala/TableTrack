@@ -1,5 +1,6 @@
 import { supabase } from "@/db/supabaseClient";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 interface Category {
   id: string;
@@ -10,7 +11,7 @@ interface Category {
 
 export const Category = () => {
   const [category, setCategory] = useState<Category[]>([]);
-  // Calculate total count and price
+  const navigate = useNavigate();
   useEffect(() => {
     async function fetchOrders() {
       const { data, error } = await supabase.from("category").select("*");
@@ -32,6 +33,7 @@ export const Category = () => {
             <div
               key={item.id}
               className="flex rounded-lg text-sm font-medium items-center justify-center bg-neutral-200 h-10"
+              onClick={() => navigate(`/category/${item.id}`)}
             >
               {item.name}
             </div>
