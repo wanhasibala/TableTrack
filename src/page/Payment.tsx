@@ -4,7 +4,7 @@ import { GenerateQR } from "@/components/Payment/GenerateQR";
 import { TotalPayment } from "@/components/Payment/TotalPayment";
 import { supabase } from "@/db/supabaseClient";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 interface Order {
   total_price: number;
   customer_name: string;
@@ -15,6 +15,7 @@ const Payment = () => {
   const [items, setItems] = useState<Order[] | null>([]);
   const [error, setError] = useState("");
   const params = useParams();
+  const navigate = useNavigate();
   useEffect(() => {
     async function fetchItems() {
       try {
@@ -43,7 +44,11 @@ const Payment = () => {
       <Header name="Payment" />
       <TotalPayment price={total_price || 0} id={idpayment || ""} />
       <GenerateQR />
-      <Footer variant="full" text="Check Payment Status" onClick={() => {}} />
+      <Footer
+        variant="full"
+        text="Check Payment Status"
+        onClick={() => navigate(`/payment-status/${params.orderId}`)}
+      />
     </>
   );
 };
