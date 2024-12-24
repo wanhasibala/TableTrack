@@ -6,9 +6,13 @@ export const TabbleBanner = () => {
   const params = useParams();
   const navigate = useNavigate();
   const data = JSON.parse(window.localStorage.getItem("reduxState") || "");
-  const order = data.items.data[0].order;
-  console.log(order);
-  const table = order.table ? order.table.table_name : "";
+  let order = null;
+  let table = null;
+  if (data) {
+    order = data.items.data[0].order;
+    table = order.table ? order.table.table_name : "";
+  }
+  console.log(table);
 
   return (
     <div className="bg-[url('/TableInformation.svg')] w-full p-5 bg-fit bg-black text-white flex justify-between items-center rounded-[10px]">

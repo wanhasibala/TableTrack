@@ -108,22 +108,30 @@ export const Items = () => {
       }
     } else {
       // Create a new order in the database
-      const orderData = {
-        id_table: params.tableId,
-        order_status: "Pending",
-      };
+      //
+      //
+      // Get selected items
+      const selectedItems = items.filter((item) => item.count > 0);
 
-      const order = await postOrder(orderData, "order");
+      const data = {
+        id_table: params.tableId,
+        order_status: "",
+      };
+      // Post the order and navigate
+      const order = await postOrder(data, "order");
       const selectedItemIds = selectedItems.map((item) => ({
         item_id: item.id,
         quantity: item.count,
         //@ts-ignore
         order_id: order[0].id,
       }));
-      await postOrder(selectedItemIds, "order_item");
+      const menu_order = await postOrder(
+        selectedItemIds.map((item) => item),
+        "order_item",
+      );
 
+      // Navigate to the cart page with the order ID
       //@ts-ignore
-
       navigate(`/cart/${order[0].id}`);
     }
   };

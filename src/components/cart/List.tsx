@@ -16,7 +16,7 @@ interface Item {
   description: string;
 }
 
-export const List = () => {
+export const List = ({ setLoading }: { setLoading: boolean }) => {
   const [items, setItems] = useState<Item[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const params = useParams();
@@ -25,6 +25,7 @@ export const List = () => {
 
   useEffect(() => {
     async function fetchOrders() {
+      setLoading = true;
       const { data, error } = await supabase
         .from("order_item")
         .select("*, order(*,table(*)), menu_item(*)")
@@ -41,6 +42,7 @@ export const List = () => {
 
         window.localStorage.setItem("reduxState", JSON.stringify(data));
         dispatch(setRawItems(data));
+        setLoading = false;
       }
     }
     fetchOrders();

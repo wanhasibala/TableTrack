@@ -20,6 +20,7 @@ interface Item {
 }
 const Cart = () => {
   const [items, setItems] = useState<Item[]>();
+  const [loading, setLoading] = useState(true);
   const params = useParams();
 
   useEffect(() => {
@@ -53,7 +54,7 @@ const Cart = () => {
       <div className="flex flex-col gap-5 ">
         <Header name="Cart" />
         <TabbleBanner />
-        <List />
+        <List setLoading={loading} />
       </div>
     </Provider>
   );
