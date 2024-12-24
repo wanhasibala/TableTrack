@@ -38,7 +38,9 @@ export const Receipt = () => {
     <div className="p-2.5 w-full flex flex-col gap-5">
       <div className="flex items-start justify-start  gap-2 ">
         <ClipboardList />
-        <p className="large">Order ID {id}</p>
+        <p className="large">
+          Order ID <span className="text-primary">#{id}</span>
+        </p>
       </div>
       {!loading && (
         <div className="p-2 border border-slate-200 rounded grid grid-cols-2 gap-[10px] w-full">

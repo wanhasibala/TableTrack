@@ -10,6 +10,7 @@ import { FormOrder } from "./page/FormOrder.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import Payment from "./page/Payment.tsx";
 import PaymentStatus from "./page/PaymentStatus.tsx";
+import { TrackOrder } from "./page/TrackOrder.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -26,6 +27,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/checkout/:orderId" element={<Checkout />} />
         <Route path="/payment/:orderId" element={<Payment />} />
         <Route path="/payment-status/:orderId" element={<PaymentStatus />} />
+        <Route path="/track-order/:orderId" element={<TrackOrder />} />
         {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </BrowserRouter>
