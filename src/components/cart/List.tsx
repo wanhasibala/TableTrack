@@ -1,5 +1,5 @@
 import { Square, SquareCheck } from "lucide-react";
-import { Card } from "../order/CardList";
+import { Card } from "../Menu/CardList";
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/db/supabaseClient";
 import { Footer } from "../Footer";
@@ -14,6 +14,7 @@ interface Item {
   price: number;
   count: number;
   description: string;
+  src: string;
 }
 
 export const List = ({ setLoading }: { setLoading: boolean }) => {

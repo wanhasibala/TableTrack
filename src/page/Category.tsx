@@ -1,31 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { getOrderClient } from "../db/queries/getOrderClient.ts";
+import { Database } from "@/types/supabase.ts";
+import supabaseQuery from "@/db/queries/supabaseQuery.ts";
+import { useParams } from "react-router";
 
-interface Order {
-  id_order: number;
-  id_table: string;
-  id_client: string;
-  status: string;
-  total_price: number;
-  created_at: string;
-  total_amount: number;
-  // order_items: OrderItem[];
-}
+type Category = Database["public"]["Tables"]["category"]["Row"];
+const table = supabaseQuery("category");
 
 export const Category = () => {
-  const [order, setOrder] = useState<Order[]>([]);
+  const [category, setCategory] = useState<Category[]>([]);
+  const params = useParams();
   useEffect(() => {
     const getOrder = async () => {
       //@ts-ignore
-      setOrder(data);
+
+      setCategory(data);
     };
     getOrder();
   }, []);
 
   return (
     <div className="text-white">
-      {order.map((item) => {
-        return <div>{item.total_amount}</div>;
+      {category.map((item) => {
+        return <div key={item.id}>{item.name}</div>;
       })}
     </div>
   );
