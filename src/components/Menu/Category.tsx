@@ -1,6 +1,6 @@
 import { supabase } from "@/db/supabaseClient";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 interface Category {
   id: string;
@@ -12,13 +12,23 @@ interface Category {
 export const Category = () => {
   const [category, setCategory] = useState<Category[]>([]);
   const navigate = useNavigate();
+  const params = useParams();
+
   useEffect(() => {
     async function fetchOrders() {
-      const { data, error } = await supabase.from("category").select("*");
+      const { data, error } = await supabase
+        .from("category")
+        .select("*")
+        .eq("id_client", params.client_name);
       if (error) {
         console.error(error);
       } else {
-        data.push({ name: "All Item" });
+        data.push({
+          name: "All Item",
+          id: "1",
+          created_at: "sdkflj",
+          id_client: null,
+        });
         setCategory(data);
       }
     }

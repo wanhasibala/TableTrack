@@ -17,6 +17,7 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/:client_name" element={<Menu />} />
         <Route path="menu/:tableId" element={<Menu />} />
         <Route path="menu/order/:orderId" element={<Menu />} />
         <Route path="/menu" element={<Menu />} />

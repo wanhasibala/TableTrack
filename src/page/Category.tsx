@@ -3,6 +3,7 @@ import { getOrderClient } from "../db/queries/getOrderClient.ts";
 import { Database } from "@/types/supabase.ts";
 import supabaseQuery from "@/db/queries/supabaseQuery.ts";
 import { useParams } from "react-router";
+import { supabase } from "@/db/supabaseClient.ts";
 
 type Category = Database["public"]["Tables"]["category"]["Row"];
 const table = supabaseQuery("category");
@@ -10,13 +11,15 @@ const table = supabaseQuery("category");
 export const Category = () => {
   const [category, setCategory] = useState<Category[]>([]);
   const params = useParams();
+  console.log(params);
+  console.log(params);
   useEffect(() => {
-    const getOrder = async () => {
+    const getCategory = async () => {
+      const data = await supabase.from("category").select("* ");
+      console.log(data);
       //@ts-ignore
-
-      setCategory(data);
     };
-    getOrder();
+    getCategory();
   }, []);
 
   return (

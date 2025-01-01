@@ -22,7 +22,6 @@ export const Items = () => {
   const [items, setItems] = useState<
     (MenuItem & { quantity: number; menu_image: string })[]
   >([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const params = useParams<{ orderId?: string; tableId?: string }>();
   const navigate = useNavigate();
@@ -40,6 +39,7 @@ export const Items = () => {
           if (error) throw error;
 
           fetchedItems = await Promise.all(
+            //@ts-ignore
             data.map(async (orderItem: OrderItem) => {
               const { data: imageUrlData } = supabase.storage
                 .from("menu") // Replace with your storage bucket name
@@ -133,7 +133,7 @@ export const Items = () => {
         const order = await postOrder(data, "order");
 
         const selectedItemIds = selectedItems.map((item) => ({
-          item_id: item.id,
+          menu_item: item.id,
           quantity: item.quantity,
           order_id: order[0].id,
         }));
