@@ -25,7 +25,6 @@ const Cart = () => {
   const [order, setOrder] = useState<Order>();
   const [loading, setLoading] = useState(true);
   const params = useParams();
-
   useEffect(() => {
     async function fetchCartItems() {
       const { data, error } = await supabase
@@ -55,7 +54,12 @@ const Cart = () => {
   }, [params.orderId]);
   async function updateOrderItemWithoutMenu(
     cartItems: { id: string; quantity: number; customization: string }[],
+    order: Order,
   ) {
+    if (!order.customer_name || !order.id_table)
+      toast.error("Silahkan isi informasi diri terlebih dahulu", {
+        position: "top-center",
+      });
     try {
       cartItems.map(async ({ menu_item, ...item }) => {
         const { error } = await supabase
@@ -93,7 +97,7 @@ const Cart = () => {
         totalPrice={totalPrice}
         text="Checkout"
         onClick={() => {
-          updateOrderItemWithoutMenu(cartItems);
+          updateOrderItemWithoutMenu(cartItems, order);
         }}
       />
     </div>

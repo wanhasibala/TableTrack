@@ -16,18 +16,15 @@ type OrderItem = {
   menu_item: MenuItem;
 };
 
-const table = supabaseQuery("menu_item");
-
 export const Items = () => {
   const [items, setItems] = useState<
     (MenuItem & { quantity: number; menu_image: string })[]
   >([]);
   const [error, setError] = useState<string | null>(null);
-  const params = useParams<{ orderId?: string; tableId?: string }>();
+  const params = useParams();
   const navigate = useNavigate();
 
   const isOrderPage = !!params.orderId;
-  const id_client = "a748404f-a2cc-49a4-861c-371e9fe04974";
   useEffect(() => {
     async function fetchItems() {
       try {
@@ -35,7 +32,10 @@ export const Items = () => {
 
         if (isOrderPage) {
           // Fetch items associated with the order
-          const { data, error } = await table.select("*", id_client);
+          const { data, error } = await supabase
+            .from("client")
+            .select("*")
+            .eq("client_name", params.client_name);
           if (error) throw error;
 
           fetchedItems = await Promise.all(
@@ -59,6 +59,7 @@ export const Items = () => {
           // Fetch all menu items
           const { data, error } = await supabase.from("menu_item").select("*");
           if (error) throw error;
+          console.log(data);
 
           fetchedItems = await Promise.all(
             data.map(async (item: MenuItem) => {

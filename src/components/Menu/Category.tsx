@@ -13,23 +13,25 @@ export const Category = () => {
   const [category, setCategory] = useState<Category[]>([]);
   const navigate = useNavigate();
   const params = useParams();
-
   useEffect(() => {
     async function fetchOrders() {
       const { data, error } = await supabase
-        .from("category")
-        .select("*")
-        .eq("id_client", params.client_name);
+        .from("client")
+        .select("*, category(*)")
+        .eq("client_name", params.client_name);
+
+      // .ilike("client_name", "DEV");
       if (error) {
         console.error(error);
       } else {
-        data.push({
+        const newData = data[0].category;
+        newData.push({
           name: "All Item",
           id: "1",
           created_at: "sdkflj",
           id_client: null,
         });
-        setCategory(data);
+        setCategory(newData);
       }
     }
     fetchOrders();

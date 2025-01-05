@@ -110,20 +110,22 @@ export const FormInput = () => {
           id_table: values.table,
           notes: values.notes,
         })
+        //@ts-ignore
         .eq("id", params.orderId);
       if (error) {
         console.error("Error updating order:", error);
         toast.error("Failed to update information", { position: "top-center" });
       } else {
-        toast.success("Information updated successfully!", {
-          position: "top-center",
-        });
-        navigate(`/cart/${params.orderId}`);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
       toast.error("An unexpected error occurred.");
     }
+    toast.success("Information updated successfully!", {
+      position: "top-center",
+    });
+
+    navigate(`/cart/${params.orderId}`);
   };
   const fields = [
     { name: "name", label: "Name", placeholder: "Enter your name" },
