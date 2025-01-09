@@ -11,10 +11,15 @@ const table = supabaseQuery("category");
 export const Category = () => {
   const [category, setCategory] = useState<Category[]>([]);
   const params = useParams();
-  console.log(params);
-  console.log(params);
+
   useEffect(() => {
     const getCategory = async () => {
+      const { data: tableData, error: tableError } = await supabase
+        .from("table")
+        .select("id_client")
+        //@ts-ignore
+        .eq("id", params.tableId)
+        .single();
       const data = await supabase.from("category").select("* ");
       console.log(data);
       //@ts-ignore

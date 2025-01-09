@@ -1,38 +1,55 @@
 import { supabase } from "@/db/supabaseClient";
+import { Database } from "@/types/supabase";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { toast } from "sonner";
 
-interface Category {
-  id: string;
-  created_at: string;
-  name: string;
-  id_client: string;
-}
+type Category = Database["public"]["Tables"]["category"]["Row"];
 
 export const Category = () => {
   const [category, setCategory] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const params = useParams();
-  useEffect(() => {
-    async function fetchOrders() {
-      const { data, error } = await supabase
-        .from("client")
-        .select("*, category(*)")
-        .eq("client_name", params.client_name);
 
-      // .ilike("client_name", "DEV");
-      if (error) {
-        console.error(error);
-      } else {
-        const newData = data[0].category;
-        newData.push({
-          name: "All Item",
-          id: "1",
-          created_at: "sdkflj",
-          id_client: null,
-        });
-        setCategory(newData);
+  useEffect(() => {
+    let newData: Category[] = [];
+    async function fetchOrders() {
+      if (params.tableId) {
+        const { data: tableData, error: tableError } = await supabase
+          .from("table")
+          .select("id_client")
+          .eq("id", params.tableId)
+          .single();
+        const { data, error } = await supabase
+          .from("category")
+          .select("*")
+          .eq("id_client", tableData?.id_client);
+        if (error) {
+          console.error(error);
+        }
+
+        // newData = data?.category || [];
+      } else if (params.order) {
+      } else if (params.client_name) {
+        const { data, error } = await supabase
+          .from("client")
+          .select("*, category(*)")
+          .eq("client_name", params.client_name)
+          .single();
+        if (error) {
+          console.error(error);
+        }
+        newData = data?.category || [];
       }
+      newData.push({
+        name: "All Item",
+        id: "1",
+        created_at: "sdkflj",
+        id_client: null,
+      });
+      setCategory(newData);
+      setLoading(false);
     }
     fetchOrders();
   }, []);
@@ -40,17 +57,21 @@ export const Category = () => {
     <div>
       <p className="large mb-2.5"> Category</p>
       <div className=" grid grid-cols-4 gap-2.5">
-        {category.map((item) => {
-          return (
-            <div
-              key={item.id}
-              className="flex rounded-lg text-sm font-medium items-center justify-center bg-neutral-200 h-10"
-              onClick={() => navigate(`/category/${item.id}`)}
-            >
-              {item.name}
-            </div>
-          );
-        })}
+        {!loading && (
+          <>
+            {category.map((item) => {
+              return (
+                <div
+                  key={item.id}
+                  className="flex rounded-lg text-sm font-medium items-center justify-center bg-neutral-200 h-10"
+                  onClick={() => navigate(`/category/${item.id}`)}
+                >
+                  {item.name}
+                </div>
+              );
+            })}
+          </>
+        )}
       </div>
     </div>
   );
