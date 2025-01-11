@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/db/supabaseClient";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 import { Header } from "@/components/Header";
 import { List } from "@/components/cart/List";
@@ -25,6 +25,7 @@ const Cart = () => {
   const [order, setOrder] = useState<Order>();
   const [loading, setLoading] = useState(true);
   const params = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchCartItems() {
@@ -53,6 +54,14 @@ const Cart = () => {
 
     fetchCartItems();
   }, [params.orderId]);
+  const totalItems = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + (item.menu_item.price || 0) * item.quantity,
+    0,
+  );
   async function updateOrderItemWithoutMenu(
     cartItems: { id: string; quantity: number; customization: string }[],
     order: Order,
@@ -69,21 +78,16 @@ const Cart = () => {
           .eq("id", item.id);
         if (error) console.error(error);
       });
+      supabase.from("order").update({ total_price: totalPrice });
+
+      console.log(cartItems);
+      navigate(`/checkout/${params.orderId}`);
     } catch (error) {
       console.error("Error updating order items:", error);
     }
   }
 
   if (loading) return <p>Loading...</p>;
-
-  const totalItems = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + (item.menu_item.price || 0) * item.quantity,
-    0,
-  );
 
   return (
     <div className="flex flex-col gap-5">

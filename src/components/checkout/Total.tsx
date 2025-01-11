@@ -61,7 +61,7 @@ export const Total = ({ price }: { price: number }) => {
       </div>
       <Footer
         variant="full"
-        text={`Next ${total}`}
+        text={`Next ${totalRP}`}
         onClick={() => onSubmit()}
       />
     </>

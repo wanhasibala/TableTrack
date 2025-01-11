@@ -162,7 +162,6 @@ export const FormInput = () => {
                     <Select
                       onValueChange={(value) => field.onChange(value)}
                       value={field.value}
-                      disabled={!!field.value}
                     >
                       <SelectTrigger>
                         <SelectValue {...field} defaultValue={field.value} />
