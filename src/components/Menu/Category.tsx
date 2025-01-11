@@ -30,7 +30,18 @@ export const Category = () => {
         }
 
         // newData = data?.category || [];
-      } else if (params.order) {
+      } else if (params.orderId) {
+        const client = await supabase
+          .from("order")
+          .select("id_client")
+          .eq("id", params?.orderId)
+          .single();
+        const { data, error } = await supabase
+          .from("client")
+          .select("*, category(*)")
+          .eq("id", client.data?.id_client)
+          .single();
+        newData = data?.category;
       } else if (params.client_name) {
         const { data, error } = await supabase
           .from("client")

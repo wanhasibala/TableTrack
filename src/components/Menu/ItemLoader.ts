@@ -17,30 +17,48 @@ export function useItemsLoader(params: any) {
         let fetchedItems: any[] = [];
 
         if (params.orderId) {
-          // Load items for an order
-          const { data, error } = await supabase
+          const { data: orderData, error: orderError } = await supabase
+            .from("order")
+            .select("id_client")
+            .eq("id", params.orderId)
+            .single();
+
+          if (orderError) throw orderError;
+
+          const { data: menuItems, error: menuError } = await supabase
+            .from("menu_item")
+            .select("*")
+            .eq("id_client", orderData?.id_client);
+
+          if (menuError) throw menuError;
+
+          // Fetch items currently in the order
+          const { data: orderItems, error: orderItemsError } = await supabase
             .from("order_item")
-            .select("*, menu_item(*)")
+            .select("quantity, menu_item(*)")
             .eq("order_id", params.orderId);
 
-          if (error) throw error;
+          if (orderItemsError) throw orderItemsError;
 
-          fetchedItems = await Promise.all(
-            data.map(async (orderItem) => {
-              const { data: imageUrlData } = supabase.storage
-                .from("menu")
-                .getPublicUrl(orderItem.menu_item?.menu_image || "");
-
-              return {
-                id: orderItem.menu_item?.id,
-                name: orderItem.menu_item?.name,
-                price: orderItem.menu_item?.price,
-                quantity: orderItem.quantity,
-                description: orderItem.menu_item?.description,
-                menu_image: imageUrlData?.publicUrl || "/placeholder-image.jpg",
-              };
-            }),
+          // Create a map of order items for easy lookup
+          const orderItemsMap = new Map(
+            orderItems.map((orderItem) => [orderItem.menu_item.id, orderItem]),
           );
+
+          // Merge menu items with the quantities from the order
+          fetchedItems = menuItems.map((menuItem) => {
+            const orderItem = orderItemsMap.get(menuItem.id);
+            return {
+              id: menuItem.id,
+              name: menuItem.name,
+              quantity: orderItem?.quantity || 0, // Use order quantity if it exists
+              description: menuItem.description || null,
+              price: menuItem.price,
+              menu_image: menuItem.menu_image
+                ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${menuItem.menu_image}`
+                : "/placeholder-image.jpg",
+            };
+          });
         } else if (params.tableId) {
           // Load items for a table
           const { data: tableData } = await supabase
@@ -52,7 +70,6 @@ export function useItemsLoader(params: any) {
           const { data, error } = await supabase
             .from("menu_item")
             .select("*")
-            //@ts-ignore
             .eq("id_client", tableData?.id_client);
 
           if (error) throw error;
@@ -71,6 +88,7 @@ export function useItemsLoader(params: any) {
             }),
           );
         } else if (params.client_name) {
+          // Load items by client name
           const { data, error } = await supabase
             .from("client")
             .select("*, menu_item(*)")
@@ -78,18 +96,20 @@ export function useItemsLoader(params: any) {
             .single();
 
           if (error) throw error;
+          console.log(data);
 
           fetchedItems = data.menu_item.map((item) => ({
             id: item.id,
             name: item.name,
-            price: item.price,
             quantity: 0,
-            description: item.description,
+            description: null,
+            price: item.price,
             menu_image: item.menu_image
               ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${item.menu_image}`
               : "/placeholder-image.jpg",
           }));
         }
+        console.log(fetchedItems);
 
         setItems(fetchedItems);
       } catch (err) {

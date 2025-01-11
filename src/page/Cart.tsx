@@ -25,6 +25,7 @@ const Cart = () => {
   const [order, setOrder] = useState<Order>();
   const [loading, setLoading] = useState(true);
   const params = useParams();
+
   useEffect(() => {
     async function fetchCartItems() {
       const { data, error } = await supabase
@@ -86,7 +87,7 @@ const Cart = () => {
 
   return (
     <div className="flex flex-col gap-5">
-      <Header name="Cart" />
+      <Header name="Cart" href={`/menu/order/${params.orderId}`} />
       <TabbleBanner
         table={order?.id_table ? order?.table.table_name : ""} // Replace with dynamic data
         customer_name={order?.customer_name || ""} // Replace with dynamic data
