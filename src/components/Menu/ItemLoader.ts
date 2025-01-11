@@ -96,7 +96,6 @@ export function useItemsLoader(params: any) {
             .single();
 
           if (error) throw error;
-          console.log(data);
 
           fetchedItems = data.menu_item.map((item) => ({
             id: item.id,
@@ -108,8 +107,23 @@ export function useItemsLoader(params: any) {
               ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${item.menu_image}`
               : "/placeholder-image.jpg",
           }));
+        } else if (params.categoryId) {
+          const { data, error } = await supabase
+            .from("menu_item")
+            .select("*")
+            .eq("category_id", params.categoryId);
+
+          fetchedItems = data.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: 0,
+            description: null,
+            price: item.price,
+            menu_image: item.menu_image
+              ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${item.menu_image}`
+              : "/placeholder-image.jpg",
+          }));
         }
-        console.log(fetchedItems);
 
         setItems(fetchedItems);
       } catch (err) {

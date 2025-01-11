@@ -11,6 +11,7 @@ import { Toaster } from "./components/ui/sonner.tsx";
 import Payment from "./page/Payment.tsx";
 import PaymentStatus from "./page/PaymentStatus.tsx";
 import { TrackOrder } from "./page/TrackOrder.tsx";
+import { Category } from "./page/Category.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -20,7 +21,9 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/:client_name" element={<Menu />} />
         <Route path="menu/:tableId" element={<Menu />} />
         <Route path="menu/order/:orderId" element={<Menu />} />
-        <Route path="/menu" element={<Menu />} />
+        {/* <Route path="/menu" element={<Menu />} /> */}
+        <Route path="/category/:categoryId" element={<Category />} />
+
         {/* <Route path="order/:tableId/details" element={<OrderDetails />} /> */}
         <Route path="/cart/:orderId" element={<Cart />} />
         <Route path="/cart" element={<Cart />} />

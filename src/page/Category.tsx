@@ -4,34 +4,44 @@ import { Database } from "@/types/supabase.ts";
 import supabaseQuery from "@/db/queries/supabaseQuery.ts";
 import { useParams } from "react-router";
 import { supabase } from "@/db/supabaseClient.ts";
+import { Header } from "@/components/Header.tsx";
+import { error } from "console";
+import { ItemsCategory } from "@/components/Category/ItemsCategory.tsx";
 
 type Category = Database["public"]["Tables"]["category"]["Row"];
-const table = supabaseQuery("category");
+type MenuItem = Database["public"]["Tables"]["menu_item"]["Row"];
 
 export const Category = () => {
-  const [category, setCategory] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [menuItem, setMenuItem] = useState<MenuItem[]>([]);
   const params = useParams();
-
   useEffect(() => {
-    const getCategory = async () => {
-      const { data: tableData, error: tableError } = await supabase
-        .from("table")
-        .select("id_client")
-        //@ts-ignore
-        .eq("id", params.tableId)
-        .single();
-      const data = await supabase.from("category").select("* ");
-      console.log(data);
-      //@ts-ignore
+    const fetchCategory = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("menu_item")
+          .select("*, category(*)")
+          .eq("category_id", params.categoryId);
+
+        setMenuItem(data);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
     };
-    getCategory();
+    fetchCategory();
   }, []);
+  let header = "";
+  if (!loading) {
+    header = menuItem[0].category.name;
+  }
 
   return (
-    <div className="text-white">
-      {category.map((item) => {
-        return <div key={item.id}>{item.name}</div>;
-      })}
+    <div className="">
+      <Header name={header} href={-1} />
+      <div className="mt-5">
+        <ItemsCategory />
+      </div>
     </div>
   );
 };
