@@ -54,10 +54,6 @@ export const CardProgress = () => {
     // Subscribe to real-time updates for the specific order
   }, [orderId]);
 
-  if (!order) {
-    return <div>{toast.loading("Loading order...")}</div>;
-  }
-
   return (
     <div className="w-full flex flex-col gap-5 p-5 bg-secondary rounded-[10px] text-white">
       <h3>Order Received</h3>

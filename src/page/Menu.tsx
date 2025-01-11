@@ -10,7 +10,7 @@ const Menu = () => {
   return (
     <div className="flex flex-col gap-5">
       <MenuHeader />
-      {!params.orderId && <Banner />}
+      {params.orderId && <Banner />}
       <Search />
       <Category />
       <Items />
