@@ -94,7 +94,6 @@ export function useItemsLoader(params: any) {
             .select("*, menu_item(*)")
             .eq("client_name", params.client_name)
             .single();
-
           if (error) throw error;
 
           fetchedItems = data.menu_item.map((item) => ({
@@ -107,13 +106,35 @@ export function useItemsLoader(params: any) {
               ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${item.menu_image}`
               : "/placeholder-image.jpg",
           }));
-        } else if (params.categoryId) {
-          const { data, error } = await supabase
-            .from("menu_item")
-            .select("*")
-            .eq("category_id", params.categoryId);
 
-          fetchedItems = data.map((item) => ({
+          localStorage.setItem("id_client", data?.id);
+        } else if (params.categoryId) {
+          const id_client = localStorage.getItem("id_client");
+          let query;
+
+          // Determine the query based on the categoryId
+          if (params.categoryId !== "all") {
+            query = supabase
+              .from("menu_item")
+              .select("*")
+              .eq("category_id", params.categoryId);
+          } else {
+            query = supabase
+              .from("menu_item")
+              .select("*, category(*)")
+              .eq("id_client", id_client);
+          }
+
+          // Execute the query
+          const { data, error } = await query;
+
+          // Handle potential errors
+          if (error) {
+            console.error("Error fetching menu items:", error);
+            return []; // Return an empty array or handle the error as needed
+          }
+
+          fetchedItems = data?.map((item) => ({
             id: item.id,
             name: item.name,
             quantity: 0,

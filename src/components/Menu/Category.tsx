@@ -55,7 +55,7 @@ export const Category = () => {
       }
       newData.push({
         name: "All Item",
-        id: "1",
+        id: "all",
         created_at: "sdkflj",
         id_client: null,
       });

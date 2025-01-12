@@ -7,7 +7,6 @@ import { useNavigate, useParams } from "react-router";
 import { postOrder } from "@/db/queries/postOrder";
 import { toast } from "sonner";
 import { Database } from "@/types/supabase";
-import supabaseQuery from "@/db/queries/supabaseQuery";
 import { useItemsLoader } from "../Menu/ItemLoader.ts";
 
 type MenuItem = Database["public"]["Tables"]["menu_item"]["Row"];
@@ -19,12 +18,9 @@ type OrderItem = {
 
 export const ItemsCategory = () => {
   const params = useParams();
-  const navigate = useNavigate();
 
   const { items, loading, error, setItems } = useItemsLoader(params);
-  // Determine the active condition
-  const isOrderPage = Boolean(params.orderId);
-  const isTablePage = Boolean(params.tableId);
+  const navigate = useNavigate();
 
   const handleItemCountChange = (id: string, newQuantity: number) => {
     setItems((prevItems) =>
@@ -56,16 +52,16 @@ export const ItemsCategory = () => {
         },
         "order",
       );
+
       const orderItems = selectedItems.map((item) => ({
         menu_item: item.id,
         quantity: item.quantity,
         order_id: order[0].id,
         id_client: client?.id_client,
       }));
+
       await postOrder(orderItems, "order_item");
       localStorage.setItem("id_order", order[0].id);
-      const getlocalStorage = localStorage.getItem("id_order");
-      console.log(getlocalStorage);
       toast.success("Order has been submitted", { position: "top-center" });
     } catch (err) {
       console.error("Error processing order:", err);
@@ -73,18 +69,39 @@ export const ItemsCategory = () => {
     }
   };
 
+  // Loader component
+  const Loader = () => (
+    <div className="flex justify-center items-center w-full h-full">
+      <p>Loading...</p>{" "}
+      {/* You can replace this with a spinner or any loading animation */}
+    </div>
+  );
+
+  // Handle empty items and loading state
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (items.length === 0) {
+    toast.error("There is no items here", { position: "top-center" });
+    return (
+      <button
+        className="flex justify-center items-center w-full h-[100vh]"
+        onClick={() => navigate(-1)}
+      >
+        Go back
+      </button>
+    );
+  }
+
   return (
     <>
       <div>
         <div className="flex justify-between">
-          <p className="large">
-            {isOrderPage ? "Edit Order" : isTablePage ? "Menu Items" : "Menu"}
-          </p>
-          {!isOrderPage && (
-            <Button className="text-xs hover:border-none" variant={"link"}>
-              View all
-            </Button>
-          )}
+          <p className="large">Menu</p>
+          <Button className="text-xs hover:border-none" variant={"link"}>
+            View all
+          </Button>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -103,7 +120,7 @@ export const ItemsCategory = () => {
           totalItems={totalItems}
           totalPrice={totalPrice}
           onClick={() => handleOrderClick()}
-          text={isOrderPage ? "Update Order" : "Order Now"}
+          text="Add to Cart"
         />
       )}
     </>

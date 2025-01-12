@@ -18,13 +18,15 @@ export const Category = () => {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const { data, error } = await supabase
-          .from("menu_item")
-          .select("*, category(*)")
-          .eq("category_id", params.categoryId);
+        if (params.categoryId !== "all") {
+          const { data, error } = await supabase
+            .from("menu_item")
+            .select("*, category(*)")
+            .eq("category_id", params.categoryId);
 
-        setMenuItem(data);
-        setLoading(false);
+          setMenuItem(data);
+          setLoading(false);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -32,13 +34,17 @@ export const Category = () => {
     fetchCategory();
   }, []);
   let header = "";
-  if (!loading) {
+  if (!loading && params.categoryId !== "all" && menuItem.length > 0) {
+    console.log("halo");
     header = menuItem[0].category.name;
+  }
+  if (params.categoryId === "all") {
+    header = "All";
   }
 
   return (
     <div className="">
-      <Header name={header} href={-1} />
+      {menuItem.length > 0 && <Header name={header} href={-1} />}
       <div className="mt-5">
         <ItemsCategory />
       </div>
