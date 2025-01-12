@@ -131,7 +131,11 @@ export const Items = () => {
             {isOrderPage ? "Edit Order" : isTablePage ? "Menu Items" : "Menu"}
           </p>
           {!isOrderPage && (
-            <Button className="text-xs hover:border-none" variant={"link"}>
+            <Button
+              className="text-xs hover:border-none"
+              variant={"link"}
+              onClick={() => navigate("/category/all")}
+            >
               View all
             </Button>
           )}
