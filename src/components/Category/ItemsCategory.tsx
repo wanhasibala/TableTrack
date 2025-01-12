@@ -93,27 +93,30 @@ export const ItemsCategory = () => {
       </button>
     );
   }
-
+  const categories = Array.from(
+    new Set(items.map((item) => item.category.name)),
+  );
   return (
     <>
-      <div>
-        <div className="flex justify-between">
-          <p className="large">Menu</p>
-          <Button className="text-xs hover:border-none" variant={"link"}>
-            View all
-          </Button>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          {items.map((item) => (
-            <Card
-              quantity={item.quantity}
-              item={item}
-              key={item.id}
-              onItemCountChange={handleItemCountChange}
-            />
-          ))}
-        </div>
+      <div className="mt-4 flex gap-8 flex-col">
+        {categories.map((categoryName) => (
+          <div className=" flex flex-col gap-2 " key={categoryName}>
+            <h2 className="large">{categoryName}</h2>{" "}
+            {/* Display the category name */}
+            <div className="flex flex-col gap-2">
+              {items
+                .filter((item) => item.category.name === categoryName) // Filter items by category
+                .map((item) => (
+                  <Card
+                    quantity={item.quantity}
+                    item={item}
+                    key={item.id}
+                    onItemCountChange={handleItemCountChange}
+                  />
+                ))}
+            </div>
+          </div>
+        ))}
       </div>
       {totalItems > 0 && (
         <Footer

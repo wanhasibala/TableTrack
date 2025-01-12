@@ -17,18 +17,10 @@ export function useItemsLoader(params: any) {
         let fetchedItems: any[] = [];
 
         if (params.orderId) {
-          const { data: orderData, error: orderError } = await supabase
-            .from("order")
-            .select("id_client")
-            .eq("id", params.orderId)
-            .single();
-
-          if (orderError) throw orderError;
-
           const { data: menuItems, error: menuError } = await supabase
             .from("menu_item")
-            .select("*")
-            .eq("id_client", orderData?.id_client);
+            .select("*, order_item(*)")
+            .filter("order_item.order_id", "eq", params?.orderId);
 
           if (menuError) throw menuError;
 
@@ -42,10 +34,12 @@ export function useItemsLoader(params: any) {
 
           // Create a map of order items for easy lookup
           const orderItemsMap = new Map(
-            orderItems.map((orderItem) => [orderItem.menu_item.id, orderItem]),
+            orderItems.map((orderItem) => [
+              orderItem?.menu_item?.id,
+              orderItem,
+            ]),
           );
 
-          // Merge menu items with the quantities from the order
           fetchedItems = menuItems.map((menuItem) => {
             const orderItem = orderItemsMap.get(menuItem.id);
             return {
@@ -135,6 +129,7 @@ export function useItemsLoader(params: any) {
           }
 
           fetchedItems = data?.map((item) => ({
+            category: item.category,
             id: item.id,
             name: item.name,
             quantity: 0,

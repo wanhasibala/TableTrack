@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { Menu, Minus, Plus } from "lucide-react";
 import { Database } from "@/types/supabase";
 import { MenuDetailDialog } from "./MenuDetailDialog";
+import { rupiahFormat } from "@/lib/formatting";
 
 type Item = Database["public"]["Tables"]["menu_item"]["Row"];
 
@@ -33,12 +34,7 @@ export const Card: React.FC<CardProps> = ({
         />
         <div>
           <p className="large">{name}</p>
-          <p className="text-sm">
-            {new Intl.NumberFormat("id-ID", {
-              style: "currency",
-              currency: "idr",
-            }).format(price || 0)}
-          </p>
+          <p className="text-sm">{rupiahFormat(price)}</p>
         </div>
       </div>
       {quantity === 0 ? (

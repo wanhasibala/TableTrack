@@ -39,12 +39,12 @@ export const Category = () => {
     header = menuItem[0].category.name;
   }
   if (params.categoryId === "all") {
-    header = "All";
+    header = "All Items";
   }
 
   return (
     <div className="">
-      {menuItem.length > 0 && <Header name={header} href={-1} />}
+      <Header name={header} href={-1} />
       <div className="mt-5">
         <ItemsCategory />
       </div>

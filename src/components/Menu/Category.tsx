@@ -25,9 +25,11 @@ export const Category = () => {
           .from("category")
           .select("*")
           .eq("id_client", tableData?.id_client);
+
         if (error) {
           console.error(error);
         }
+        newData = data;
 
         // newData = data?.category || [];
       } else if (params.orderId) {
