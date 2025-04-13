@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Bell, ShoppingCart } from "lucide-react";
-import { error } from "console";
 import { supabase } from "@/db/supabaseClient";
 import { useNavigate, useParams } from "react-router";
 
@@ -11,6 +10,7 @@ export const MenuHeader = () => {
   const navigate = useNavigate();
   const params = useParams();
   const id_order = localStorage.getItem("id_order");
+
   useEffect(() => {
     const countcart = async () => {
       try {
@@ -24,8 +24,9 @@ export const MenuHeader = () => {
         console.error(error);
       }
     };
-
-    countcart();
+    if (params.orderId) {
+      countcart();
+    }
   }, []);
   return (
     <header className="flex justify-between items-center ">

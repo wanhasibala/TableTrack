@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Menu, Minus, Plus } from "lucide-react";
-import { Database } from "@/types/supabase";
 import { MenuDetailDialog } from "./MenuDetailDialog";
 import { rupiahFormat } from "@/lib/formatting";
-
-type Item = Database["public"]["Tables"]["menu_item"]["Row"];
+import type { CategoryFromDB, MenuItem } from "./ItemLoader";
 
 interface CardProps {
-  item: Item; // Represents the menu item from the database
-  onItemCountChange: (id: string, newQuantity: number) => void; // Callback to update quantity
-  quantity: number; // Quantity of the item, passed from the parent component
+  item: MenuItem;
+  onItemCountChange: (id: string, newQuantity: number) => void;
+  quantity: number;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -18,7 +16,8 @@ export const Card: React.FC<CardProps> = ({
   onItemCountChange,
   quantity,
 }) => {
-  const { id, name, price, menu_image } = item;
+  const { id, name, price } = item;
+  const menu_image = item.menu_image;
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -28,13 +27,18 @@ export const Card: React.FC<CardProps> = ({
         onClick={() => setIsOpen(true)} // Opens the detail dialog (if implemented)
       >
         <img
+          loading="lazy"
           className="w-[60px] h-[60px] object-cover bg-slate-100 rounded-lg"
-          src={menu_image || "/placeholder.jpg"} // Fallback to a placeholder image
-          // alt={name}
+          src={menu_image || "/placeholder.jpg"}
+          alt={name || "Menu item"}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "/placeholder.jpg";
+          }}
         />
         <div>
           <p className="large">{name}</p>
-          <p className="text-sm">{rupiahFormat(price)}</p>
+          <p className="text-sm">{rupiahFormat(price || 0)}</p>
         </div>
       </div>
       {quantity === 0 ? (

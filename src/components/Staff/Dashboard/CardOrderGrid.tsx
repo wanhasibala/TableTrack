@@ -1,5 +1,6 @@
 import { ChefHat, CircleCheck, Clipboard, Icon, Wallet } from "lucide-react";
 import React from "react";
+import { useNavigate } from "react-router";
 const status = [
   { name: "Active", iconName: Clipboard, count: 3, color: "#884405" },
   { name: "Not Paid", iconName: Wallet, count: 4, color: "#C17604" },
@@ -8,11 +9,17 @@ const status = [
 ];
 
 export const CardOrderGrid = () => {
+  const navigate = useNavigate();
   return (
     <div className="mt-5 grid grid-cols-2 gap-5">
       {status.map((item) => {
+        const params = encodeURIComponent(item.name);
         return (
-          <div className="border text-sm p-2 flex flex-col gap-2 rounded-lg">
+          <div
+            onClick={() => navigate(`/active-order/${params}`)}
+            key={item.name}
+            className="border text-sm p-2 flex flex-col gap-2 rounded-lg"
+          >
             <div className="w-full justify-between flex">
               {item.name}{" "}
               <div

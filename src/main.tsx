@@ -16,6 +16,7 @@ import ProtectedRoute from "./context/ProtectedAuth.tsx";
 import { Dashboard } from "./page/protected/Dashboard.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { Login } from "./page/Auth/Login.tsx";
+import { ListActiveOrder } from "./page/protected/ListActiveOrder.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -44,6 +45,14 @@ createRoot(document.getElementById("root")!).render(
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/active-order/:status"
+            element={
+              <ProtectedRoute>
+                <ListActiveOrder />
               </ProtectedRoute>
             }
           />

@@ -1,30 +1,61 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/db/supabaseClient";
 import { Database } from "@/types/supabase";
+import { PostgrestResponse, PostgrestSingleResponse } from "@supabase/supabase-js";
 
-type MenuItem = Database["public"]["Tables"]["menu_item"]["Row"];
+// Base types
+type BaseMenuItem = Database["public"]["Tables"]["menu_item"]["Row"];
 
-export function useItemsLoader(params: any) {
-  const [items, setItems] = useState<
-    (MenuItem & { quantity: number; menu_image: string })[]
-  >([]);
+export type CategoryFromDB = {
+  id: string;
+  name: string;
+  created_at?: string;
+  [key: string]: any;
+};
+
+interface LoaderParams {
+  orderId?: string;
+  tableId?: string;
+  client_name?: string;
+  categoryId?: string;
+}
+
+// Combined type for menu items with additional fields
+export type MenuItem = BaseMenuItem & {
+  quantity: number;
+  menu_image: string | null;
+  category?: CategoryFromDB;
+};
+
+// Response types
+type OrderItemResponse = {
+  quantity: number;
+  menu_item: BaseMenuItem;
+};
+
+type ClientResponse = {
+  id: string;
+  menu_item: BaseMenuItem[];
+};
+
+export function useItemsLoader(params: LoaderParams) {
+  const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchItems() {
       try {
-        let fetchedItems: any[] = [];
+        let fetchedItems: MenuItem[] = [];
 
         if (params.orderId) {
           const { data: menuItems, error: menuError } = await supabase
             .from("menu_item")
             .select("*, order_item(*)")
-            .filter("order_item.order_id", "eq", params?.orderId);
+            .filter("order_item.order_id", "eq", params.orderId);
 
           if (menuError) throw menuError;
 
-          // Fetch items currently in the order
           const { data: orderItems, error: orderItemsError } = await supabase
             .from("order_item")
             .select("quantity, menu_item(*)")
@@ -32,29 +63,21 @@ export function useItemsLoader(params: any) {
 
           if (orderItemsError) throw orderItemsError;
 
-          // Create a map of order items for easy lookup
           const orderItemsMap = new Map(
-            orderItems.map((orderItem) => [
+            (orderItems as OrderItemResponse[]).map((orderItem) => [
               orderItem?.menu_item?.id,
               orderItem,
-            ]),
+            ])
           );
 
-          fetchedItems = menuItems.map((menuItem) => {
-            const orderItem = orderItemsMap.get(menuItem.id);
-            return {
-              id: menuItem.id,
-              name: menuItem.name,
-              quantity: orderItem?.quantity || 0, // Use order quantity if it exists
-              description: menuItem.description || null,
-              price: menuItem.price,
-              menu_image: menuItem.menu_image
-                ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${menuItem.menu_image}`
-                : "/placeholder-image.jpg",
-            };
-          });
+          fetchedItems = (menuItems || []).map((menuItem) => ({
+            ...menuItem,
+            quantity: orderItemsMap.get(menuItem.id)?.quantity || 0,
+            menu_image: menuItem.menu_image
+              ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${menuItem.menu_image}`
+              : null
+          }));
         } else if (params.tableId) {
-          // Load items for a table
           const { data: tableData } = await supabase
             .from("table")
             .select("id_client")
@@ -63,81 +86,66 @@ export function useItemsLoader(params: any) {
 
           const { data, error } = await supabase
             .from("menu_item")
-            .select("*")
-            .eq("id_client", tableData?.id_client);
+            .select("*, category(*)")
+            .eq("id_client", tableData?.id_client || "");
 
           if (error) throw error;
 
-          fetchedItems = await Promise.all(
-            data.map(async (item) => {
-              const { data: imageUrlData } = supabase.storage
-                .from("menu")
-                .getPublicUrl(item.menu_image || "");
-
-              return {
-                ...item,
-                quantity: 0,
-                menu_image: imageUrlData?.publicUrl || "/placeholder-image.jpg",
-              };
-            }),
-          );
+          fetchedItems = (data || []).map((item: any) => ({
+            ...item,
+            quantity: 0,
+            menu_image: item.menu_image
+              ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${item.menu_image}`
+              : null,
+            category: item.category ? {
+              id: item.category.id,
+              name: item.category.name
+            } : undefined
+          }));
         } else if (params.client_name) {
-          // Load items by client name
           const { data, error } = await supabase
             .from("client")
             .select("*, menu_item(*)")
             .eq("client_name", params.client_name)
             .single();
+
           if (error) throw error;
 
-          fetchedItems = data.menu_item.map((item) => ({
-            id: item.id,
-            name: item.name,
+          localStorage.setItem("id_client", data?.id);
+
+          fetchedItems = ((data?.menu_item as BaseMenuItem[]) || []).map((item) => ({
+            ...item,
             quantity: 0,
-            description: null,
-            price: item.price,
             menu_image: item.menu_image
               ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${item.menu_image}`
-              : "/placeholder-image.jpg",
+              : null
           }));
-
-          localStorage.setItem("id_client", data?.id);
         } else if (params.categoryId) {
           const id_client = localStorage.getItem("id_client");
-          let query;
+          const baseQuery = supabase
+            .from("menu_item")
+            .select("*, category(*)");
 
-          // Determine the query based on the categoryId
-          if (params.categoryId !== "all") {
-            query = supabase
-              .from("menu_item")
-              .select("*")
-              .eq("category_id", params.categoryId);
-          } else {
-            query = supabase
-              .from("menu_item")
-              .select("*, category(*)")
-              .eq("id_client", id_client);
-          }
+          const query = params.categoryId !== "all"
+            ? baseQuery.eq("category_id", params.categoryId)
+            : id_client
+              ? baseQuery.eq("id_client", id_client)
+              : baseQuery;
 
-          // Execute the query
           const { data, error } = await query;
 
-          // Handle potential errors
-          if (error) {
-            console.error("Error fetching menu items:", error);
-            return []; // Return an empty array or handle the error as needed
-          }
+          if (error) throw error;
 
-          fetchedItems = data?.map((item) => ({
-            category: item.category,
-            id: item.id,
-            name: item.name,
+          fetchedItems = (data || []).map((item: any) => ({
+            ...item,
             quantity: 0,
-            description: null,
-            price: item.price,
             menu_image: item.menu_image
               ? `https://dncrdmxpzacwnydmltht.supabase.co/storage/v1/object/public/menu/${item.menu_image}`
-              : "/placeholder-image.jpg",
+              : null,
+            category: item.category ? {
+              id: item.category.id,
+              name: item.category.name
+            } : undefined
           }));
         }
 
