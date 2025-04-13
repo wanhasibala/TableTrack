@@ -20,18 +20,23 @@ export const List: React.FC<ListProps> = ({ items, setItems }) => {
   const handleQuantityChange = (id: string, newQuantity: number) => {
     setItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item,
-      ),
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      )
     );
   };
 
   const handleCustomizationChange = (id: string, customization: string) => {
     setItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, customization } : item,
-      ),
+        item.id === id ? { ...item, customization } : item
+      )
     );
   };
+  items.sort((a, b) => {
+    const createdAtA = new Date(a.menu_item.created_at);
+    const createdAtB = new Date(b.menu_item.created_at);
+    return createdAtA.getTime() - createdAtB.getTime();
+  });
 
   return (
     <>

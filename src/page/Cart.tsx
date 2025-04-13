@@ -56,20 +56,23 @@ const Cart = () => {
   }, [params.orderId]);
   const totalItems = cartItems.reduce(
     (total, item) => total + item.quantity,
-    0,
+    0
   );
   const totalPrice = cartItems.reduce(
     (total, item) => total + (item.menu_item.price || 0) * item.quantity,
-    0,
+    0
   );
   async function updateOrderItemWithoutMenu(
     cartItems: { id: string; quantity: number; customization: string }[],
-    order: Order,
+    order: Order
   ) {
-    if (!order.customer_name || !order.id_table)
+    if (!order.customer_name || !order.id_table) {
       toast.error("Silahkan isi informasi diri terlebih dahulu", {
         position: "top-center",
       });
+      return;
+    }
+
     try {
       cartItems.map(async ({ menu_item, ...item }) => {
         const { error } = await supabase

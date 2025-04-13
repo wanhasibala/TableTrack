@@ -18,10 +18,10 @@ export const handleOrderClick = async (items: any[]) => {
             .from("order_item")
             .update({ quantity: item.quantity })
             .eq("order_id", params.orderId)
-            .eq("item_id", item.id);
+            .eq("menu_item", item.id);
 
           if (error) throw error;
-        }),
+        })
       );
       toast("Order updated successfully!", { position: "top-center" });
       navigate(`/checkout/${params.orderId}`);
@@ -41,7 +41,7 @@ export const handleOrderClick = async (items: any[]) => {
       // Create new order for a table
       const { data: order } = await postOrder(
         { id_table: params.tableId, order_status: "" },
-        "order",
+        "order"
       );
 
       const orderItems = selectedItems.map((item) => ({

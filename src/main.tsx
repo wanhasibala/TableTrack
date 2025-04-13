@@ -17,6 +17,7 @@ import { Dashboard } from "./page/protected/Dashboard.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { Login } from "./page/Auth/Login.tsx";
 import { ListActiveOrder } from "./page/protected/ListActiveOrder.tsx";
+import { Method } from "./page/Method.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -36,6 +37,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/form-order/:orderId" element={<FormOrder />} />
           <Route path="/checkout/:orderId" element={<Checkout />} />
           <Route path="/payment/:orderId" element={<Payment />} />
+          <Route path="/method/payment/:orderId" element={<Method />} />
           <Route path="/payment-status/:orderId" element={<PaymentStatus />} />
           <Route path="/track-order/:orderId" element={<TrackOrder />} />
           <Route path="/login" element={<Login />} />

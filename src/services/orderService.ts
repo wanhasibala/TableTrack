@@ -2,8 +2,8 @@ import { supabase } from "@/db/supabaseClient";
 import { Database } from "@/types/supabase";
 import { MenuItem } from "@/components/Menu/ItemLoader";
 
-type Order = Database['public']['Tables']['order']['Row'];
-type OrderItem = Database['public']['Tables']['order_item']['Row'];
+type Order = Database["public"]["Tables"]["order"]["Row"];
+type OrderItem = Database["public"]["Tables"]["order_item"]["Row"];
 
 export const orderService = {
   async updateExistingOrder(orderId: string, selectedItems: MenuItem[]) {
@@ -45,14 +45,14 @@ export const orderService = {
         order_date: new Date().toISOString(),
         id_client: selectedItems[0].id_client,
       })
-      .select('*')
+      .select("*")
       .single();
 
     if (orderError) throw orderError;
     if (!order?.id) throw new Error("Failed to create order");
 
     const orderItems = selectedItems.map((item) => ({
-      item_id: item.id,
+      menu_item: item.id,
       quantity: item.quantity,
       order_id: order.id,
       id_client: item.id_client,
@@ -80,14 +80,14 @@ export const orderService = {
         order_status: "Not Paid",
         order_date: new Date().toISOString(),
       })
-      .select('*')
+      .select("*")
       .single();
 
     if (orderError) throw orderError;
     if (!order?.id) throw new Error("Failed to create order");
 
     const orderItems = selectedItems.map((item) => ({
-      item_id: item.id,
+      menu_item: item.id,
       quantity: item.quantity,
       order_id: order.id,
       id_client: client?.id,
@@ -99,5 +99,5 @@ export const orderService = {
 
     if (itemsError) throw itemsError;
     return order;
-  }
+  },
 };

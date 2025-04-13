@@ -39,9 +39,13 @@ export const ItemsCheckout = () => {
   }, []);
   const totalPrice = item.reduce(
     (total, item) => total + item.price * item.count,
-    0,
+    0
   );
-
+  item.sort((a, b) => {
+    const createdA = new Date(a.created_at || 0).getTime();
+    const createdB = new Date(b.created_at || 0).getTime();
+    return createdA - createdB;
+  });
   return (
     <div>
       <div className="w-full flex justify-between items-center border-b border-b-slate-200 py-[10px]">
@@ -56,7 +60,7 @@ export const ItemsCheckout = () => {
       </div>
       <div>
         {item.map((i: Item) => (
-          <Card name={i.name} price={i.price} amount={i.count} />
+          <Card name={i.name} price={i.price} amount={i.count} key={i.id} />
         ))}
       </div>
       <div className="py-5 border-b border-b-slate-200">
@@ -68,9 +72,7 @@ export const ItemsCheckout = () => {
           Add Items
         </Button>
       </div>
-      <div>
-        <Method />
-      </div>
+
       {!loading && <Total price={totalPrice} />}
     </div>
   );
