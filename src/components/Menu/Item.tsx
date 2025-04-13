@@ -17,7 +17,7 @@ type RouteParams = Record<string, string | undefined> & {
 export const Items = () => {
   const params = useParams<RouteParams>();
   const navigate = useNavigate();
-  const { selectedCategory, searchTerm } = useMenuContext();
+  const { selectedCategory, searchTerm, priceRange } = useMenuContext();
 
   const { items: allItems, loading, error, setItems } = useItemsLoader(params);
 
@@ -39,14 +39,19 @@ export const Items = () => {
     );
   };
 
-  // Filter items based on category and search term
+  // Filter items based on category, search term, and price range
   const displayedItems = allItems.filter((item: MenuItem) => {
     const matchesCategory = selectedCategory === "all" || item.category?.id === selectedCategory;
+    
     const matchesSearch = searchTerm === "" || (
-      (item.name?.toLowerCase().includes(searchTerm) ||
-      item.description?.toLowerCase().includes(searchTerm))
+      (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-    return matchesCategory && matchesSearch;
+
+    const matchesPrice = (item.price || 0) >= priceRange.min && 
+                        (item.price || 0) <= priceRange.max;
+
+    return matchesCategory && matchesSearch && matchesPrice;
   });
 
   const totalItems = displayedItems.reduce(
@@ -94,7 +99,7 @@ export const Items = () => {
 
         {displayedItems.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No items found. Try adjusting your search or category filter.
+            No items found. Try adjusting your filters or search term.
           </div>
         ) : (
           <MenuItemList 
