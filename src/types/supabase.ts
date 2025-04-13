@@ -15,6 +15,7 @@ export type Database = {
           id: string
           id_client: string | null
           name: string | null
+          sequence: number | null
         }
         Insert: {
           created_at?: string

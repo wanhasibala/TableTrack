@@ -1,90 +1,67 @@
-import { supabase } from "@/db/supabaseClient";
-import { Database } from "@/types/supabase";
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { toast } from "sonner";
+import React from "react";
+import { useParams } from "react-router";
+import { useCategory } from "@/hooks/useCategory";
+import { useMenuContext } from "@/context/MenuContext";
+import { cn } from "@/lib/utils";
 
-type Category = Database["public"]["Tables"]["category"]["Row"];
+type RouteParams = Record<string, string | undefined> & {
+  tableId?: string;
+  orderId?: string;
+  client_name?: string;
+};
 
 export const Category = () => {
-  const [category, setCategory] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const params = useParams();
+  const params = useParams<RouteParams>();
+  const { selectedCategory, setSelectedCategory } = useMenuContext();
+  
+  const { categories, loading, error } = useCategory({
+    tableId: params.tableId,
+    orderId: params.orderId,
+    clientName: params.client_name
+  });
 
-  useEffect(() => {
-    let newData: Category[] = [];
-    async function fetchOrders() {
-      if (params.tableId) {
-        const { data: tableData, error: tableError } = await supabase
-          .from("table")
-          .select("id_client")
-          .eq("id", params.tableId)
-          .single();
-        const { data, error } = await supabase
-          .from("category")
-          .select("*")
-          .eq("id_client", tableData?.id_client);
+  if (loading) {
+    return (
+      <div>
+        <div className="h-6 w-24 bg-gray-200 rounded mb-2.5 animate-pulse" />
+        <div className="grid grid-cols-4 gap-2.5">
+          {[1, 2, 3, 4].map((n) => (
+            <div
+              key={n}
+              className="h-10 bg-gray-200 rounded-lg animate-pulse"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-        if (error) {
-          console.error(error);
-        }
-        newData = data;
+  if (error) {
+    return (
+      <div className="text-center text-red-500 py-4">
+        Failed to load categories. Please try again.
+      </div>
+    );
+  }
 
-        // newData = data?.category || [];
-      } else if (params.orderId) {
-        const client = await supabase
-          .from("order")
-          .select("id_client")
-          .eq("id", params?.orderId)
-          .single();
-        const { data, error } = await supabase
-          .from("client")
-          .select("*, category(*)")
-          .eq("id", client.data?.id_client)
-          .single();
-        newData = data?.category;
-      } else if (params.client_name) {
-        const { data, error } = await supabase
-          .from("client")
-          .select("*, category(*)")
-          .eq("client_name", params.client_name)
-          .single();
-        if (error) {
-          console.error(error);
-        }
-        newData = data?.category || [];
-      }
-      newData.push({
-        name: "All Item",
-        id: "all",
-        created_at: "sdkflj",
-        id_client: null,
-      });
-      setCategory(newData);
-      setLoading(false);
-    }
-    fetchOrders();
-  }, []);
   return (
     <div>
-      <p className="large mb-2.5"> Category</p>
-      <div className=" grid grid-cols-4 gap-2.5">
-        {!loading && (
-          <>
-            {category.map((item) => {
-              return (
-                <div
-                  key={item.id}
-                  className="flex rounded-lg text-sm font-medium items-center justify-center bg-neutral-200 h-10"
-                  onClick={() => navigate(`/category/${item.id}`)}
-                >
-                  {item.name}
-                </div>
-              );
-            })}
-          </>
-        )}
+      <p className="large mb-2.5">Category</p>
+      <div className="grid grid-cols-4 gap-2.5 animate-in fade-in duration-500">
+        {categories.map((item) => (
+          <button
+            key={item.id}
+            className={cn(
+              "flex rounded-lg text-sm font-medium items-center justify-center h-10 transition-all",
+              selectedCategory === item.id
+                ? "bg-primary text-white scale-[0.98]"
+                : "bg-neutral-200 hover:bg-neutral-300"
+            )}
+            onClick={() => setSelectedCategory(item.id)}
+          >
+            {item.name}
+          </button>
+        ))}
       </div>
     </div>
   );

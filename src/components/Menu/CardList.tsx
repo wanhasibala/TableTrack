@@ -31,10 +31,6 @@ export const Card: React.FC<CardProps> = ({
           className="w-[60px] h-[60px] object-cover bg-slate-100 rounded-lg"
           src={menu_image || "/placeholder.jpg"}
           alt={name || "Menu item"}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = "/placeholder.jpg";
-          }}
         />
         <div>
           <p className="large">{name}</p>

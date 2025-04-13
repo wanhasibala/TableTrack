@@ -28,10 +28,10 @@ export const MenuDetailDialog: React.FC<MenuDetailDialogProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="fixed bottom-0 left-0 w-full bg-white rounded-t-lg p-4"
+        className="fixed bottom-0  left-0 w-full bg-white rounded-t-lg p-4 pb-10"
         style={{ transform: "none" }}
       >
-        <div className="mt-4 flex flex-col gap-4">
+        <div className="mt-0 flex flex-col gap-4 mb-">
           <img
             src={menu_image || "/placeholder-image.jpg"}
             className="h-[200px] object-cover w-full rounded-lg"
