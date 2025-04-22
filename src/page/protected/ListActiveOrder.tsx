@@ -1,19 +1,19 @@
 import { Header } from "@/components/Header";
+import { Card } from "@/components/Staff/ListActiveOrder.tsx/Card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/db/supabaseClient";
-import { Database } from "@/types/supabase";
+import { OrderWithRelations } from "@/types/supabase";
 import { Calendar } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
-type Order = Database["public"]["Tables"]["order"]["Row"];
-
 export const ListActiveOrder = () => {
   const params = useParams();
-  const [order, setOrder] = useState<Order[]>([]);
+  const [order, setOrder] = useState<OrderWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   //@ts-ignore
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = localStorage.getItem("id_client");
+
 
   const date = new Date();
 
@@ -30,21 +30,29 @@ export const ListActiveOrder = () => {
 
   useEffect(() => {
     const fetchOrder = async () => {
+      if (!params.status || !user) return;
+
+      const orderStatus =
+        params.status === "Active"
+          ? ["Active", "Not Paid", "In Progress", "Closed"]
+          : [params.status];
+
       const { data, error } = await supabase
         .from("order")
-        .select("*, table(*)")
-        .eq("order_status", params.status)
-        .eq("id_client", user?.id_client);
+        .select("*, table(*), order_item(*)")
+        .in("order_status", orderStatus)
+        .eq("id_client", user);
+
       if (error) {
         console.error(error);
+        return;
       }
-      console.log(data);
-      setOrder(data);
+      
+      setOrder(data || []);
       setLoading(false);
     };
     fetchOrder();
-  }, []);
-  console.log(order);
+  }, [params.status, user]);
   return (
     <div className="flex gap-5 flex-col">
       <Header href="/dashboard" name={`${params.status} Order`} />
@@ -55,7 +63,9 @@ export const ListActiveOrder = () => {
 
       <h3 className="py-2 border-b">{params.status} Order</h3>
       {order.map((item) => (
-        <div key={item.id}>{item.id}</div>
+        <div key={item.id}>
+          <Card item={item}/>
+        </div>
       ))}
     </div>
   );

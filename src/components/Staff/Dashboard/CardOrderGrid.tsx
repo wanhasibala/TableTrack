@@ -1,18 +1,60 @@
 import { ChefHat, CircleCheck, Clipboard, Icon, Wallet } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-const status = [
-  { name: "Active", iconName: Clipboard, count: 3, color: "#884405" },
-  { name: "Not Paid", iconName: Wallet, count: 4, color: "#C17604" },
-  { name: "In Progress", iconName: ChefHat, count: 5, color: "#1F0302" },
-  { name: "Closed", iconName: CircleCheck, count: 2, color: "#166534" },
+import { supabase } from "@/db/supabaseClient";
+
+const statusConfig = [
+  { name: "Active", iconName: Clipboard, color: "#884405" },
+  { name: "Not Paid", iconName: Wallet, color: "#C17604" },
+  { name: "In Progress", iconName: ChefHat, color: "#1F0302" },
+  { name: "Closed", iconName: CircleCheck, color: "#166534" },
 ];
 
 export const CardOrderGrid = () => {
   const navigate = useNavigate();
+  const [orderCounts, setOrderCounts] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  //@ts-ignore
+  const user = localStorage.getItem("id_client");
+
+  useEffect(() => {
+    const fetchOrderCounts = async () => {
+      if (!user) return;
+
+      // For each status, get the count
+      const counts: Record<string, number> = {};
+
+      for (const status of statusConfig.map((s) => s.name)) {
+        const sta =
+          status === "Active" ? statusConfig.map((s) => s.name) : [status];
+
+        const { count, error } = await supabase
+          .from("order")
+          .select("*", { count: "exact", head: true })
+          .eq("id_client", user)
+          .in("order_status", sta);
+
+        if (error) {
+          console.error(`Error fetching count for ${status}:`, error);
+          continue;
+        }
+
+        counts[status] = count || 0;
+      }
+
+      setOrderCounts(counts);
+      setLoading(false);
+    };
+
+    fetchOrderCounts();
+  }, [user]);
+  if (loading) {
+    return <div className="mt-5 text-center">Loading orders...</div>;
+  }
+
   return (
     <div className="mt-5 grid grid-cols-2 gap-5">
-      {status.map((item) => {
+      {statusConfig.map((item) => {
         const params = encodeURIComponent(item.name);
         return (
           <div
@@ -30,7 +72,7 @@ export const CardOrderGrid = () => {
               </div>
             </div>
 
-            <h3>{item.count} </h3>
+            <h3>{orderCounts[item.name] || 0}</h3>
           </div>
         );
       })}

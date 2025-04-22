@@ -390,6 +390,15 @@ export type Database = {
   }
 }
 
+export type OrderItem = Database["public"]["Tables"]["order_item"]["Row"]
+export type Table = Database["public"]["Tables"]["table"]["Row"]
+export type Order = Database["public"]["Tables"]["order"]["Row"]
+
+export type OrderWithRelations = Order & {
+  table: Table | null
+  order_item: OrderItem[]
+}
+
 type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
