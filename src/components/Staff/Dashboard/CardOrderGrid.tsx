@@ -2,6 +2,7 @@ import { ChefHat, CircleCheck, Clipboard, Icon, Wallet } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { supabase } from "@/db/supabaseClient";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusConfig = [
   { name: "Active", iconName: Clipboard, color: "#884405" },
@@ -48,8 +49,18 @@ export const CardOrderGrid = () => {
 
     fetchOrderCounts();
   }, [user]);
+  const LoadingSkeleton = React.memo(() => (
+    <div className="mt-5 grid grid-cols-2 gap-5">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ))}
+    </div>
+  ));
   if (loading) {
-    return <div className="mt-5 text-center">Loading orders...</div>;
+    return <LoadingSkeleton />;
   }
 
   return (
